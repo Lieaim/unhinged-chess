@@ -1,0 +1,2 @@
+import{Chess}from'chess.js';
+export function ending(game:Chess):string|null{if(game.isCheckmate())return `Checkmate — ${game.turn()==='w'?'Black':'White'} wins`;if(game.isStalemate())return 'Draw — stalemate (no legal moves)';if(game.isThreefoldRepetition())return 'Draw — the same position occurred three times';if(game.isInsufficientMaterial())return 'Draw — insufficient material to checkmate';if(game.isDrawByFiftyMoves())return 'Draw — 50 moves without a pawn move or capture';return game.isDraw()?'Draw':null;}
