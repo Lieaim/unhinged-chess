@@ -31,3 +31,15 @@ This is an initial implementation, not the entire long-term specification. Custo
 ## Engine licensing
 
 Stockfish is GPL-3.0. The npm stockfish package includes licensing and source information; preserve these when redistributing. Engine assets are copied from the installed package during build. See https://github.com/nmrugg/stockfish.js and https://stockfishchess.org for corresponding source and license.
+
+## Custom Game Laboratory (Leveling + Fusion)
+
+Open Custom to enable either or both modifiers. Each has an independent applicability selector; White/Black options also assign mechanics in bot battles. Human/Bot resolves from the colour switch and bot-vs-bot setup. Settings apply immediately; use New match to reset progression.
+
+Choose an action, select a piece, then click a highlighted destination. Evolution uses the same square and asks for a recipe. Fusion removes the first piece and places the result on the second square after confirmation. Reverse selection to choose the other destination. The recipe book describes all twelve result types and allows recipe toggles. Ability actions include shield, ranged, teleport and command. Cooldowns count owner turns. Shields and HP absorb attacks while the attacker stays on its original square. Overlord captures allow one extra move. Command grants one move to the selected adjacent ally.
+
+Lifetime XP and spent points are independent; leveling milestones never repeat. Save snapshots include board identity, HP, shields, cooldowns, XP, spent points, turn restrictions and modifier settings. Undo restores the complete previous snapshot and pauses AI. Custom saves are separate from standard PGN/FEN. Browser persistence saves the current custom state; the undo stack is session-only.
+
+The custom engine deliberately uses a documented variant: king safety/checkmate, pawn double moves, auto-queen promotion, no castling or en passant. Standard remains chess.js with its official rules. Custom AI never calls Stockfish. Its separate worker scores material, HP, shields and XP, enumerates legal special actions, and uses bounded adversarial search. Search time scales from 100 ms to 1.9 seconds; depth scales up to two reply plies. These settings are experimental difficulty labels, not real-world ELO. No repetitions/50-move draws or custom match clocks yet. Evolution/fusion animations and sounds, recipe editor, full pluggable event handlers and extensive browser/AI benchmarks remain follow-up work; current events are a deterministic audit trail emitted by the central action reducer.
+
+Extension files: `labRules.ts` holds recipes, permissions, movement, action validation and atomic transitions; `lab.worker.ts` handles bounded AI; `Laboratory.tsx` renders the existing Custom tab. Add custom mechanics through validated action types and the transition reducer. Events record destruction/move, capture, then turn-end/start; rewards run exactly once in that transition. New mechanics should not grant rewards by replaying the event log.

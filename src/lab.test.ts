@@ -1,0 +1,19 @@
+import{describe,it,expect}from'vitest';import{initial,defaults,actions,apply,points,applies,recipes,State,Unit,attacks}from'./labRules';
+const unit=(kind:string,side:'w'|'b'='w'):Unit=>({kind,side,id:Math.random().toString(),hp:1,shield:false,ready:0});
+function empty(){const s=initial(defaults);s.board=Array(64).fill(null);s.board[60]=unit('k');s.board[4]=unit('k','b');return s;}
+describe('custom laboratory',()=>{
+it('awards move and capture XP once',()=>{const s=empty();s.board[40]=unit('r');s.board[32]=unit('r','b');const n=apply(s,{type:'move',from:40,to:32});expect(n.xp.w).toBe(6);expect(s.xp.w).toBe(0);expect(points(n,'w')).toBe(1);});
+it('spends points without reducing lifetime XP',()=>{const s=empty();s.xp.w=10;s.board[48]=unit('p');const n=apply(s,{type:'evolve',from:48,to:48,kind:'n'});expect(n.xp.w).toBe(10);expect(points(n,'w')).toBe(1);expect(n.turn).toBe('b');expect(n.board[48]?.kind).toBe('n');});
+it('limits free evolutions',()=>{const s=empty();s.xp.w=20;s.config.evolveTurn=false;s.board[48]=unit('p');s.board[49]=unit('p');const n=apply(s,{type:'evolve',from:48,to:48,kind:'r'});expect(n.turn).toBe('w');expect(actions(n).some(a=>a.type==='evolve')).toBe(false);});
+it('enforces side permissions',()=>{const s=initial({...defaults,levelScope:'Human Only',human:'b'});expect(applies(s,'level','w')).toBe(false);expect(applies(s,'level','b')).toBe(true);s.config.bothBots=true;expect(applies(s,'level','b')).toBe(false);s.config.levelScope='Bot Only';expect(applies(s,'level','w')).toBe(true);});
+it('fuses evolved pieces without XP',()=>{const s=empty();s.board[40]=unit('b');s.board[41]=unit('n');const n=apply(s,{type:'fuse',from:40,to:41,kind:'a'});expect(n.board[40]).toBeNull();expect(n.board[41]?.kind).toBe('a');expect(n.xp.w).toBe(0);expect(n.turn).toBe('b');});
+it('has all twelve recipe results',()=>expect(new Set(recipes.map(r=>r[2])).size).toBe(12));
+it('blocks disabled mechanics and recipes',()=>{const s=empty();s.board[40]=unit('b');s.board[41]=unit('n');s.config.disabled=['a'];expect(actions(s).some(a=>a.type==='fuse')).toBe(false);s.config.fusion=false;expect(applies(s,'fusion')).toBe(false);});
+it('shield absorbs an attack',()=>{const s=empty();s.board[40]=unit('r');s.board[32]={...unit('f','b'),hp:2,shield:true};const n=apply(s,{type:'move',from:40,to:32});expect(n.board[32]?.hp).toBe(2);expect(n.board[32]?.shield).toBe(false);expect(n.board[40]?.kind).toBe('r');expect(n.xp.w).toBe(1);});
+it('HP absorbs attack until destroyed',()=>{const s=empty();s.board[40]=unit('r');s.board[32]={...unit('f','b'),hp:2};const n=apply(s,{type:'move',from:40,to:32});expect(n.board[32]?.hp).toBe(1);expect(n.board[40]?.kind).toBe('r');});
+it('ranged capture grants capture XP only',()=>{const s=empty();s.board[40]=unit('s');s.board[24]=unit('n','b');const n=apply(s,{type:'ranged',from:40,to:24});expect(n.xp.w).toBe(3);expect(n.board[40]?.ready).toBe(4);});
+it('overlord bonus is limited to one',()=>{const s=empty();s.board[40]=unit('o');s.board[32]=unit('p','b');s.board[24]=unit('p','b');const n=apply(s,{type:'move',from:40,to:32});expect(n.bonus).toBe(32);const end=apply(n,{type:'move',from:32,to:24});expect(end.turn).toBe('b');expect(end.bonus).toBeNull();});
+it('preserves custom save state without rewards',()=>{const s=empty();s.xp.w=13;s.spent.w=1;s.board[40]={...unit('t'),hp:3,shield:true,ready:5};const restored:State=JSON.parse(JSON.stringify(s));expect(restored).toEqual(s);expect(points(restored)).toBe(1);});
+it('custom attacks respect blockers and jumping',()=>{const s=empty();s.board[40]=unit('a');s.board[33]=unit('p');expect(attacks(s,40,26)).toBe(false);expect(attacks(s,40,25)).toBe(true);});
+it('rejects exposing king',()=>{const s=empty();s.board[52]=unit('r');s.board[12]=unit('r','b');expect(actions(s).some(a=>a.type==='move'&&a.from===52&&a.to===53)).toBe(false);});
+});
