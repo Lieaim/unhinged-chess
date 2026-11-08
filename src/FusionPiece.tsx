@@ -1,3 +1,4 @@
+import {useAppearance} from './appearanceState';
 import {names} from './labRules';
 // Original vector silhouettes share a Staunton-style plinth and distinct heraldic tops.
 const silhouettes:Record<string,string>={
@@ -21,6 +22,15 @@ void:'M16 49 L22 39 L18 27 L24 11 L32 4 L40 11 L46 27 L42 39 L48 49 Z',
 dragon:'M16 49 L23 34 L14 27 L22 20 L19 8 L30 16 L36 5 L39 18 L50 22 L45 30 L35 32 L43 49 Z',
 rider:'M18 49 L25 35 L16 29 L20 19 L28 24 L25 11 L33 4 L40 13 L46 18 L42 27 L37 35 L46 49 Z'
 });
+Object.assign(silhouettes,{
+p:'M22 49 L26 35 Q19 31 23 27 Q17 19 22 13 Q26 6 32 8 Q39 6 43 13 Q48 20 41 27 Q45 31 38 35 L42 49 Z',
+r:'M18 49 L22 28 H17 V11 H25 V18 H29 V9 H35 V18 H39 V11 H47 V28 H42 L46 49 Z',
+n:'M18 49 L23 36 L17 31 L13 27 L21 16 L25 17 L26 7 L33 13 Q47 17 44 32 L40 49 Z',
+b:'M21 49 L26 35 Q18 31 23 23 L32 8 L41 23 Q46 31 38 35 L43 49 Z',
+q:'M19 49 L24 34 L17 17 L25 23 L25 10 L32 20 L39 10 L39 23 L47 17 L40 34 L45 49 Z',
+k:'M20 49 L25 34 Q18 29 22 22 H28 V16 H23 V10 H28 V4 H36 V10 H41 V16 H36 V22 H42 Q46 29 39 34 L44 49 Z'
+});
 const details:Record<string,string>={a:'M30 11 L35 24 M22 30 L32 34 L38 29 M26 41 L37 41',c:'M29 12 L35 18 L39 18 M21 29 L32 33 L38 29 M26 41 L37 41',d:'M23 29 L41 29 M27 36 L37 36 M32 18 L32 25',j:'M26 14 L29 20 M38 14 L35 20 M21 32 L28 36 M43 32 L36 36 M32 28 L32 45',h:'M35 13 L28 27 M25 33 L39 33 M27 41 L37 41',f:'M19 27 L45 27 M26 33 L26 44 M38 33 L38 44 M30 30 L34 30',i:'M27 14 L32 10 L37 14 M22 28 L42 28 M27 36 L37 36 M32 32 L32 45',s:'M20 30 L42 30 M36 24 L46 16 M23 37 L23 43 M39 37 L39 43',o:'M20 26 L44 26 M25 32 L32 38 L39 32 M27 43 L37 43',t:'M21 30 L43 30 M32 31 L32 44 M25 35 L25 42 M39 35 L39 42',v:'M30 13 L36 19 M22 31 L35 34 M27 39 L38 42 M24 46 L40 46',g:'M20 25 L44 25 M24 31 L32 35 L40 31 M27 40 L37 40 M32 37 L32 46'};
 Object.assign(details,{superqueen:'M20 26 H44 M26 34 L32 39 L38 34 M32 12 V22 M28 17 H36',titan:'M18 26 H46 M23 33 L32 40 L41 33 M24 45 H40 M32 10 V21',void:'M32 13 Q17 28 32 40 Q47 28 32 13 Z M23 45 H41',dragon:'M27 22 L35 25 L43 23 M26 35 L34 39 M27 43 H37',rider:'M30 13 L36 19 M23 30 L35 33 M27 40 H38 M25 45 H40'});
-export function FusionPiece({kind,side='w'}:{kind:string;side?:'w'|'b'}){return <svg className={'fusion-piece '+(side==='w'?'ivory':'obsidian')} viewBox="0 0 64 64" role="img" aria-label={names[kind]}><title>{names[kind]}</title><g strokeWidth="2" strokeLinejoin="round" strokeLinecap="round"><path className="piece-body" d={silhouettes[kind]}/><path className="piece-body" d="M18 49 H46 L49 54 H15 Z M14 54 H50 L52 59 H12 Z"/><path className="piece-detail" d={details[kind]}/>{['f','s','t'].includes(kind)&&<path className="piece-inlay" d="M28 35 L32 32 L36 35 L35 41 L32 44 L29 41 Z"/>}{['a','c','i','v'].includes(kind)&&<circle className="piece-eye" cx="35" cy="23" r="1.5"/>}{['d','h','o','g'].includes(kind)&&<path className="piece-inlay" d="M32 19 L35 23 L32 27 L29 23 Z"/>}</g></svg>}
+Object.assign(details,{p:'M24 28 H40 M26 35 H38 M26 43 H38',r:'M22 28 H42 M25 35 H39 M25 42 H39',n:'M28 20 L31 23 M21 28 L29 30 M27 36 L37 39 M27 44 H37',b:'M35 16 L28 29 M25 35 H39 M27 43 H37',q:'M23 29 H41 M25 35 H39 M27 43 H37',k:'M25 24 H39 M26 34 H38 M27 43 H37'});
+export function FusionPiece({kind,side='w'}:{kind:string;side?:'w'|'b'}){const {pieceStyle}=useAppearance();return <svg className={'fusion-piece '+(side==='w'?'ivory':'obsidian')} viewBox="0 0 64 64" role="img" aria-label={names[kind]}><title>{names[kind]}</title><g strokeWidth="2" strokeLinejoin="round" strokeLinecap="round"><path className="piece-body" d={silhouettes[kind]}/><path className="piece-body" d={pieceStyle==='classic'?'M20 49 Q32 44 44 49 L48 55 H16 Z M16 55 Q32 51 48 55 L50 59 H14 Z':pieceStyle==='woodcut'?'M18 49 H46 L50 53 L47 56 L52 59 H12 L17 56 L14 53 Z':'M18 49 H46 L49 54 H15 Z M14 54 H50 L52 59 H12 Z'}/><path className="piece-detail" d={details[kind]}/>{['f','s','t'].includes(kind)&&<path className="piece-inlay" d="M28 35 L32 32 L36 35 L35 41 L32 44 L29 41 Z"/>}{['a','c','i','v'].includes(kind)&&<circle className="piece-eye" cx="35" cy="23" r="1.5"/>}{['d','h','o','g'].includes(kind)&&<path className="piece-inlay" d="M32 19 L35 23 L32 27 L29 23 Z"/>}</g></svg>}
