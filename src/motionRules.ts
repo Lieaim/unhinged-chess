@@ -1,0 +1,6 @@
+import{customPieces}from'./pieceRegistry';
+export type PieceMotion={from:number;to:number;kind:string;side:'w'|'b';jump?:boolean;bounce?:boolean;slip?:boolean};
+export const motionDuration=(moves:PieceMotion[])=>moves.length?Math.max(...moves.map(m=>m.bounce?1000:m.jump?500:360)):0;
+export function jumping(kind:string,from:number,to:number,size:number,teleport=false){const dx=Math.abs(from%size-to%size),dy=Math.abs(Math.floor(from/size)-Math.floor(to/size));return teleport||kind==='n'||!!customPieces[kind]&&(dx*dy===2||!!customPieces[kind].extended&&dx+dy===3&&(dx===0||dy===0)||!!customPieces[kind].camel&&(dx===3&&dy===1||dx===1&&dy===3)||!!customPieces[kind].nightrider);}
+export const squareIndex=(s:string)=> (8-Number(s[1]))*8+s.charCodeAt(0)-97;
+export function standardMotion(move:{from:string;to:string;piece:string;color:'w'|'b';flags:string}):PieceMotion[]{const from=squareIndex(move.from),to=squareIndex(move.to),moves:PieceMotion[]=[{from,to,kind:move.piece,side:move.color,jump:move.piece==='n'}];if(move.flags.includes('k'))moves.push({from:from+3,to:from+1,kind:'r',side:move.color});if(move.flags.includes('q'))moves.push({from:from-4,to:from-1,kind:'r',side:move.color});return moves;}

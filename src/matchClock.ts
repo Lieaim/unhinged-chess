@@ -1,8 +1,8 @@
 import{Match,matchTurn}from'./onlineRules';import{Chess}from'chess.js';
-export type MatchClock={w:number;b:number;running:'w'|'b'|null;at:number;minutes:number;multiplier?:number};
+export type MatchClock={w:number;b:number;running:'w'|'b'|null;at:number;minutes:number;multiplier?:number;pauseUntil?:number;paused?:boolean};
 export const validMinutes=(n:number)=>Number.isInteger(n)&&n>=1&&n<=30;
 export function createClock(minutes:number,multiplier=1):MatchClock{if(!validMinutes(minutes))throw Error('Choose a whole number from 1 to 30 minutes');if(!Number.isFinite(multiplier)||multiplier<1||multiplier>30)throw Error('Invalid clock speed');return{multiplier,w:minutes*60000,b:minutes*60000,running:null,at:0,minutes};}
-export function clockValues(clock:MatchClock,now:number){const result={w:clock.w,b:clock.b};if(clock.running)result[clock.running]=Math.max(0,result[clock.running]-Math.max(0,now-clock.at)*(clock.multiplier||1));return result;}
+export function clockValues(clock:MatchClock,now:number){const result={w:clock.w,b:clock.b};if(clock.running&&!clock.paused)result[clock.running]=Math.max(0,result[clock.running]-Math.max(0,now-Math.max(clock.at,clock.pauseUntil||0))*(clock.multiplier||1));return result;}
 export function finished(m:Match){if(m.kind==='custom')return !!(m.state.outcome||m.state.winner||m.state.events.includes('onGameEnd'));const c=new Chess();c.loadPgn(m.pgn);return !!m.outcome||c.isGameOver();}
 export function settleClock(m:Match,now:number):Match{if(!m.clock)return m;const values=clockValues(m.clock,now),clock={...m.clock,...values,at:now};if(clock.running&&values[clock.running]<=0&&!finished(m)){const loser=clock.running,outcome=`${loser==='w'?'Black':'White'} wins on time — ${loser==='w'?'White':'Black'} ran out of time`;clock.running=null;return m.kind==='standard'?{...m,clock,outcome}:{...m,clock,state:{...m.state,outcome}};}if(finished(m))clock.running=null;return {...m,clock};}
 export function switchClock(m:Match,now:number):Match{return m.clock?{...m,clock:{...m.clock,at:now,running:finished(m)?null:matchTurn(m)}}:m;}
