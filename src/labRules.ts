@@ -60,3 +60,5 @@ export function registerModifier(handler:ModifierHandler){if(modifierHandlers.ha
 export function dispatchEvents(events:string[],state:State,actor:Side){for(const event of [...events])for(const handler of [...modifierHandlers.values()].sort((a,b)=>a.priority-b.priority||a.id.localeCompare(b.id)))handler.onEvent(event,state,actor);}
 
 
+// Search simulations consume already validated actions and never replay UI events or timestamps.
+export function simulate(s:State,a:Action):State{return applyUnchecked(s,a);}

@@ -1,4 +1,2 @@
-import{actions,apply,evaluate,State,Action}from'./labRules';
-self.onmessage=(e:MessageEvent<{state:State;elo:number}>)=>{const {state,elo}=e.data,all=actions(state);if(!all.length){postMessage(null);return;}if(elo===0){postMessage(all[Math.floor(Math.random()*all.length)]);return;}const deadline=performance.now()+100+Math.max(0,elo)/5000*1800,side=state.turn;let best:Action=all[0],score=elo<0?Infinity:-Infinity;function search(s:State,depth:number):number{if(depth===0||performance.now()>deadline)return evaluate(s,side);const next=actions(s);if(!next.length)return evaluate(s,side)+(s.winner===side?10000:s.winner?-10000:0);const scores=next.slice(0,64).map(a=>search(apply(s,a),depth-1));return s.turn===side?Math.max(...scores):Math.min(...scores);}const ranked=all.map(a=>({a,v:evaluate(apply(state,a),side)})).sort((a,b)=>elo<0?a.v-b.v:b.v-a.v);for(const {a}of ranked){const v=search(apply(state,a),elo<0?1:Math.floor(Math.max(0,elo)/1800));if(elo<0?v<score:v>score){score=v;best=a;}if(performance.now()>deadline)break;}postMessage(Math.random()<Math.max(0,1-Math.abs(elo)/2000)?all[Math.floor(Math.random()*all.length)]:best);};
-
-
+import{State}from'./labRules';import{chooseCustomAction}from'./customBot';
+self.onmessage=(e:MessageEvent<{state:State;elo:number}>)=>{postMessage(chooseCustomAction(e.data.state,e.data.elo));};
