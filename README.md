@@ -52,4 +52,13 @@ The **Custom Pieces** modifier is the dependency for nonstandard units. Fusion c
 
 `src/pieceRegistry.ts` is the shared catalogue for names, movement flags, material values, HP, descriptions, and fusion eligibility. All twelve fusion units live here; recipes can only produce entries marked `fusion: true`. Experimental units cannot appear in fusion recipes accidentally. Add a registry entry, artwork in `FusionPiece.tsx`, and rule tests to extend the catalogue. Multi-step movement uses the custom rules engine and worker AI, never Stockfish.
 
-New experimental units: **Super Queen** (queen + knight), **Titan Empress** (queen + knight, 5 HP), **Void Walker** (unrestricted square-to-square warp), **Dragon** (queen + 3×1 camel jumps, 3 HP), **Nightmare Rider** (repeated knight-vector movement, blocked at occupied intermediate landings). King safety and non-capturable kings remain in effect. These deliberately overpowered units are unbalanced experimental options.
+New experimental units: **Super Queen** (queen + knight), **Titan Empress** (queen + knight, 5 HP), **Void Walker** (queen movement plus adjacent squares; no unrestricted warp), **Dragon** (queen + 3×1 camel jumps, 3 HP), **Nightmare Rider** (repeated knight-vector movement, blocked at occupied intermediate landings). King safety and non-capturable kings remain in effect. These deliberately overpowered units are unbalanced experimental options.
+
+
+## Large Board
+
+In Custom, enable **Large Board**, enter an integer size from **8 to 16**, and press **Start with board settings**. Sizes describe both width and height, including odd sizes. The current browser implementation caps the size at 16 to keep custom move generation practical. Normal eight-file armies are centred along each home edge; extra home squares remain empty by default.
+
+Enable **Fill empty home squares** to fill only unoccupied squares in each side's two home rows. Choose White and Black fillers independently from normal and registered custom pieces (except kings). This option requires Custom Pieces even when the chosen filler is a normal piece. Starting pieces and each side's sole king are preserved. One Versus Many always preserves the lone side's two-piece limit; only the opposing army receives filler.
+
+Board dimensions come from the active board state, so changing setup fields never reinterprets an existing match. Move generation, king safety, pawn advances/promotion, abilities, bot workers, planning arrows and save/load use these active dimensions. Old 8×8 saves remain valid. Void Walker no longer attacks arbitrary squares: it follows queen rays with normal blockers, plus the adjacent 3×3 area centred on itself (one square in each direction).
