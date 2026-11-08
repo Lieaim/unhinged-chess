@@ -72,3 +72,7 @@ The site remains on GitHub Pages. PeerJS Cloud provides signaling; WebRTC carrie
 ## Custom Board
 
 In Custom choose **Starting armies → Custom Board**, configure Large Board and Custom Pieces as desired, then press **Start with board settings**. Select a piece, colour and starting turn. Left-click places; right-click removes. Use the starting-board button after placing exactly one king per side. Pawns cannot begin on promotion rows; the side that just moved cannot be in check. The accepted layout persists in custom saves and can be shared in an invite game. Setup actions never earn XP. Kings are excluded from filler choices but are available in the editor.
+
+## Online clocks
+The host selects 1–30 whole minutes per player before creating a room (10 minutes by default). The guest inherits that setting. Both clocks wait until the opponent connects. The host charges elapsed monotonic time before accepting moves, sends authoritative clock updates every second, and declares a timeout when the active clock reaches zero. Custom free actions and bonus moves retain the active player's clock. Clocks stop at game end and freeze on disconnect; reconnect and increments are not supported. Network delay can create small display differences; host receipt time decides move timing. As with the rest of peer play, the host is trusted.
+
