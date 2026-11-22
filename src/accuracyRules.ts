@@ -5,7 +5,11 @@ export function moveAccuracy(played:number,candidates:number[]) {
  const best=Math.max(...candidates),worst=Math.min(...candidates);
  // A forced move or equally good choices cannot lose accuracy.
  if(best===worst)return 100;
- return 100*Math.max(0,Math.min(1,(played-worst)/(best-worst)));
+ const relative=Math.max(0,Math.min(1,(played-worst)/(best-worst)));
+ const loss=Math.max(0,best-played);
+ // Penalise small losses directly: a terrible outlier must not inflate all
+ // remaining moves. Ten centipawns already costs roughly ten percentage points.
+ return 100*Math.pow(relative,4)*Math.exp(-loss/100);
 }
 export function reviewPositions(pgn:string){const game=new Chess();game.loadPgn(pgn);return game.history({verbose:true}).map((m,i)=>({number:i+1,san:m.san,side:m.color,before:m.before,after:m.after,uci:m.from+m.to+(m.promotion||'')}));}
 export function completeRanking(groups:Map<number,Map<string,number>>,legal:string[]){
